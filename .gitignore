@@ -1,0 +1,9 @@
+node_modules/
+data/
+!data/.gitkeep
+config/credentials.json
+.env
+dist/
+*.log
+.dev.vars
+.wrangler/

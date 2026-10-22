@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RO Workflow — Primes Auto Service</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <noscript>This portal needs JavaScript enabled.</noscript>
+
+  <!-- ============ LOGIN ============ -->
+  <main id="view-login" class="login-view" hidden>
+    <form id="login-form" class="login-card" autocomplete="on" novalidate>
+      <div class="brand brand--large">
+        <span class="monogram" aria-hidden="true">PA</span>
+        <span class="brand-text">
+          <span class="brand-name">Primes Auto Service</span>
+          <span class="brand-sub">RO Workflow</span>
+        </span>
+      </div>
+      <h1 class="login-title">Shop sign-in</h1>
+      <p class="login-hint">Use the shared shop login to open the board.</p>
+      <label class="field">
+        <span>Username</span>
+        <input id="login-username" class="input" name="username" type="text" autocomplete="username" required autofocus>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="login-password" class="input" name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+      <button type="submit" class="btn btn--primary btn--block" id="login-submit">Sign in</button>
+    </form>
+    <div id="setup-required" class="setup-card" hidden>
+      <h2>Login not set up yet</h2>
+      <p>The shared shop login hasn't been configured on the server. On the computer running the portal, open a terminal in the app folder and run:</p>
+      <pre>npm run setup</pre>
+      <p>Then reload this page.</p>
+    </div>
+  </main>
+
+  <!-- ============ BOARD ============ -->
+  <div id="view-board" class="board-view" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <span class="monogram" aria-hidden="true">PA</span>
+        <span class="brand-text">
+          <span class="brand-name">Primes Auto</span>
+          <span class="brand-sub">RO Workflow</span>
+        </span>
+      </div>
+
+      <form id="add-form" class="add-form" autocomplete="off">
+        <label class="sr-only" for="add-ro">RO number</label>
+        <input id="add-ro" class="input input--ro" type="text" placeholder="RO number" maxlength="40" required spellcheck="false">
+        <label class="sr-only" for="add-vehicle">Vehicle (optional)</label>
+        <input id="add-vehicle" class="input input--vehicle" type="text" placeholder="Vehicle (optional)" maxlength="120">
+        <button type="submit" class="btn btn--primary" id="add-submit">
+          <span class="btn-icon" aria-hidden="true">+</span> Add RO
+        </button>
+      </form>
+
+      <div class="topbar-right">
+        <div class="search" id="search">
+          <label class="sr-only" for="search-input">Search ROs by number</label>
+          <input id="search-input" class="input input--search" type="search" placeholder="Search RO #  ( / )" autocomplete="off" spellcheck="false" aria-controls="search-results" aria-expanded="false" role="combobox" aria-autocomplete="list">
+          <div id="search-results" class="search-results" role="listbox" hidden></div>
+        </div>
+        <button type="button" class="btn" id="btn-archive">Archive <span class="badge" id="archive-count">0</span></button>
+        <button type="button" class="btn btn--ghost" id="btn-logout" title="Sign out of the shared shop login">Log out</button>
+      </div>
+    </header>
+
+    <div class="board-meta">
+      <span id="active-count">0 active</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span id="sync-status" aria-live="polite">Synced</span>
+      <span class="board-meta-hint">Drag a card to a phase, or use its <strong>Move</strong> menu.</span>
+    </div>
+
+    <nav id="phase-tabs" class="phase-tabs" aria-label="Jump to phase"></nav>
+    <main id="board" class="board" aria-label="Workflow board"></main>
+  </div>
+
+  <!-- ============ RO DRAWER ============ -->
+  <div id="drawer-backdrop" class="backdrop" hidden></div>
+  <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <header class="drawer-head">
+      <div>
+        <div class="drawer-eyebrow" id="drawer-status">Active</div>
+        <h2 id="drawer-title" class="drawer-title">RO —</h2>
+        <div class="drawer-vehicle" id="drawer-vehicle"></div>
+      </div>
+      <button type="button" class="btn btn--icon" id="drawer-close" aria-label="Close">&times;</button>
+    </header>
+
+    <div class="drawer-body">
+      <section class="drawer-section" id="drawer-phase-section">
+        <h3 class="drawer-h3">Phase <span class="muted" id="drawer-phase-current"></span></h3>
+        <div class="phase-grid" id="drawer-phase-grid" role="group" aria-label="Move to phase"></div>
+      </section>
+
+      <section class="drawer-section drawer-actions" id="drawer-actions"></section>
+
+      <section class="drawer-section">
+        <h3 class="drawer-h3">Details</h3>
+        <form id="edit-form" class="edit-form">
+          <label class="field field--inline">
+            <span>RO number</span>
+            <input id="edit-ro" class="input" type="text" maxlength="40" required spellcheck="false">
+          </label>
+          <label class="field field--inline">
+            <span>Vehicle</span>
+            <input id="edit-vehicle" class="input" type="text" maxlength="120" placeholder="optional">
+          </label>
+          <div class="edit-form-actions">
+            <button type="submit" class="btn btn--small">Save changes</button>
+          </div>
+        </form>
+        <dl class="meta-list">
+          <div><dt>Created</dt><dd id="drawer-created"></dd></div>
+          <div id="drawer-since-row"><dt>In current phase since</dt><dd id="drawer-since"></dd></div>
+          <div id="drawer-completed-row" hidden><dt>Completed</dt><dd id="drawer-completed"></dd></div>
+        </dl>
+      </section>
+
+      <section class="drawer-section">
+        <h3 class="drawer-h3">History</h3>
+        <ol class="history" id="drawer-history"></ol>
+      </section>
+    </div>
+  </aside>
+
+  <!-- ============ ARCHIVE ============ -->
+  <div id="archive-backdrop" class="backdrop" hidden></div>
+  <section id="archive" class="modal" role="dialog" aria-modal="true" aria-labelledby="archive-title" hidden>
+    <header class="modal-head">
+      <h2 id="archive-title">Archive <span class="muted" id="archive-subtitle"></span></h2>
+      <div class="modal-head-tools">
+        <label class="sr-only" for="archive-search">Search archive by RO number</label>
+        <input id="archive-search" class="input input--search" type="search" placeholder="Filter by RO #" autocomplete="off" spellcheck="false">
+        <button type="button" class="btn btn--icon" id="archive-close" aria-label="Close">&times;</button>
+      </div>
+    </header>
+    <div class="modal-body">
+      <table class="table" id="archive-table">
+        <thead>
+          <tr><th scope="col">RO</th><th scope="col">Vehicle</th><th scope="col">Completed</th><th scope="col" class="t-right">Actions</th></tr>
+        </thead>
+        <tbody id="archive-rows"></tbody>
+      </table>
+      <p class="empty" id="archive-empty" hidden>Nothing in the archive yet.</p>
+    </div>
+  </section>
+
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <template id="tpl-card">
+    <article class="card" draggable="true" tabindex="0">
+      <div class="card-top">
+        <span class="card-ro"></span>
+        <span class="card-vehicle"></span>
+        <span class="card-age" title="Time in this phase"></span>
+      </div>
+      <div class="card-foot">
+        <label class="card-move">
+          <span class="sr-only">Move to phase</span>
+          <select class="select select--move" aria-label="Move to phase"></select>
+        </label>
+        <button type="button" class="btn btn--small btn--complete" hidden>Complete</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

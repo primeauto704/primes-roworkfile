@@ -1,0 +1,48 @@
+{
+  "name": "primes-ro-workflow",
+  "version": "1.0.0",
+  "description": "Standalone shop workflow portal for tracking repair orders (ROs) through Primes Auto Service \u2014 Kanban board, archive, history, shared shop login. Runs on a shop PC (Node + SQLite) or on Cloudflare Workers + D1.",
+  "private": true,
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "setup": "node --disable-warning=ExperimentalWarning scripts/setup.js",
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
+    "package": "node scripts/package.js",
+    "deploy": "wrangler deploy",
+    "cf:dev": "wrangler dev --local",
+    "cf:secrets": "wrangler secret put SHOP_USERNAME && wrangler secret put SHOP_PASSWORD"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "wrangler": "^4.151.1"
+  },
+  "cloudflare": {
+    "label": "Primes Auto \u2014 RO Workflow portal",
+    "products": [
+      "Workers",
+      "D1"
+    ],
+    "categories": [
+      "storage"
+    ],
+    "docs_url": "https://github.com/primeauto704/primes-roworkfile#readme",
+    "bindings": {
+      "DB": {
+        "description": "D1 database for repair orders, history and sessions. Created automatically."
+      }
+    },
+    "secrets": {
+      "SHOP_USERNAME": {
+        "description": "The shared shop username everyone will sign in with (e.g. shop)."
+      },
+      "SHOP_PASSWORD": {
+        "description": "The shared shop password. Pick something long; it is stored encrypted and never shown again."
+      }
+    }
+  }
+}

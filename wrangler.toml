@@ -1,0 +1,31 @@
+# Primes Auto — RO Workflow portal on Cloudflare Workers + D1
+# Deploy with:  npx wrangler deploy      (or the "Deploy to Cloudflare" button in README.md)
+
+name = "primes-ro-workflow"
+main = "worker/index.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# The front end, served straight from Cloudflare's edge. Unknown paths fall back to index.html.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+# The Worker adds security headers to HTML and handles the API; other files go straight from the edge.
+run_worker_first = ["/api/*", "/", "/index.html"]
+
+# The database. Tables are created automatically on first request.
+# The Deploy button provisions this and fills in the id; for a manual deploy, create a D1
+# database named ro-workflow in the dashboard (or `npx wrangler d1 create ro-workflow`) and
+# paste its id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "ro-workflow"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[observability]
+enabled = true
+
+# Shop login: set as secrets, never in this file.
+#   Dashboard → Worker → Settings → Variables and Secrets → SHOP_USERNAME, SHOP_PASSWORD
+#   or:  npx wrangler secret put SHOP_USERNAME ; npx wrangler secret put SHOP_PASSWORD

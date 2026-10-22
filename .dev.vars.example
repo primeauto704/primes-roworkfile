@@ -1,0 +1,4 @@
+# Shop login for the Cloudflare Worker. Copy to .dev.vars for local `wrangler dev`;
+# in production set these as Secrets on the Worker (Settings → Variables and Secrets).
+SHOP_USERNAME=shop
+SHOP_PASSWORD=change-me-before-deploying

@@ -1,0 +1,15 @@
+services:
+  ro-workflow:
+    build: .
+    container_name: primes-ro-workflow
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      # Generate the hash with:  npm run setup -- --hash-only
+      SHOP_USERNAME: ${SHOP_USERNAME:?set SHOP_USERNAME in .env}
+      SHOP_PASSWORD_HASH: ${SHOP_PASSWORD_HASH:?set SHOP_PASSWORD_HASH in .env (npm run setup -- --hash-only)}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+    volumes:
+      - ./data:/app/data      # database (and credentials.json, if you use the setup script instead of env vars)
